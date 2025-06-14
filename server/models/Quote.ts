@@ -59,8 +59,7 @@ const QuoteItemSchema = new Schema<IQuoteItem>({
 const QuoteSchema = new Schema<IQuote>({
   quoteNumber: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   user: {
     type: Schema.Types.ObjectId,
@@ -140,8 +139,8 @@ QuoteSchema.pre('save', async function(next) {
 });
 
 // Indexes
+QuoteSchema.index({ quoteNumber: 1 }, { unique: true });
 QuoteSchema.index({ user: 1, createdAt: -1 });
-QuoteSchema.index({ quoteNumber: 1 });
 QuoteSchema.index({ status: 1 });
 
 export const Quote = mongoose.model<IQuote>('Quote', QuoteSchema);
