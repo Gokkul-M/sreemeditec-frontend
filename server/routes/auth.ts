@@ -1,6 +1,6 @@
 import express from 'express';
-import { User } from '../models/User';
-import { authenticateToken, generateToken, AuthRequest } from '../middleware/auth';
+import { authenticateToken, AuthRequest } from '../middleware/auth';
+import { authService } from '../services/AuthService';
 
 const router = express.Router();
 
@@ -9,19 +9,11 @@ router.post('/register', async (req, res) => {
   try {
     const { username, email, password, firstName, lastName } = req.body;
 
-    // Check if user already exists
-    const existingUser = await User.findOne({
-      $or: [{ email }, { username }]
-    });
-
-    if (existingUser) {
-      return res.status(400).json({
-        message: 'User with this email or username already exists'
-      });
+    if (!username || !email || !password || !firstName || !lastName) {
+      return res.status(400).json({ message: 'All fields are required' });
     }
 
-    // Create new user
-    const user = new User({
+    const result = await authService.register({
       username,
       email,
       password,
@@ -29,25 +21,12 @@ router.post('/register', async (req, res) => {
       lastName
     });
 
-    await user.save();
-
-    // Generate token
-    const token = generateToken(user._id);
-
     res.status(201).json({
       message: 'User registered successfully',
-      token,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role
-      }
+      ...result
     });
   } catch (error: any) {
-    res.status(500).json({ message: 'Registration failed', error: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -56,53 +35,33 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user by email
-    const user = await User.findOne({ email, isActive: true });
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    // Check password
-    const isValidPassword = await user.comparePassword(password);
-    if (!isValidPassword) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    // Generate token
-    const token = generateToken(user._id);
+    const result = await authService.login(email, password);
 
     res.json({
       message: 'Login successful',
-      token,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role
-      }
+      ...result
     });
   } catch (error: any) {
-    res.status(500).json({ message: 'Login failed', error: error.message });
+    res.status(401).json({ message: error.message });
   }
+});
+
+// Logout
+router.post('/logout', (req, res) => {
+  res.json({ message: 'Logged out successfully' });
 });
 
 // Get current user profile
 router.get('/profile', authenticateToken, async (req: AuthRequest, res) => {
   try {
-    res.json({
-      user: {
-        id: req.user!._id,
-        username: req.user!.username,
-        email: req.user!.email,
-        firstName: req.user!.firstName,
-        lastName: req.user!.lastName,
-        role: req.user!.role
-      }
-    });
+    const userProfile = await authService.getUserProfile(req.user!._id);
+    res.json({ user: userProfile });
   } catch (error: any) {
-    res.status(500).json({ message: 'Failed to get profile', error: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -111,18 +70,34 @@ router.put('/profile', authenticateToken, async (req: AuthRequest, res) => {
   try {
     const { firstName, lastName, username } = req.body;
     
-    const user = await User.findByIdAndUpdate(
-      req.user!._id,
-      { firstName, lastName, username },
-      { new: true }
-    ).select('-password');
+    const updatedUser = await authService.updateProfile(req.user!._id, {
+      firstName,
+      lastName,
+      username
+    });
 
     res.json({
       message: 'Profile updated successfully',
-      user
+      user: updatedUser
     });
   } catch (error: any) {
-    res.status(500).json({ message: 'Profile update failed', error: error.message });
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Change password
+router.put('/change-password', authenticateToken, async (req: AuthRequest, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Current password and new password are required' });
+    }
+
+    const result = await authService.changePassword(req.user!._id, currentPassword, newPassword);
+    res.json(result);
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
   }
 });
 

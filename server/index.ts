@@ -40,8 +40,11 @@ if (process.env.NODE_ENV === 'production') {
   setupProductionMiddleware(app);
 }
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB and initialize default user
+connectDB().then(async () => {
+  const { authService } = await import('./services/AuthService');
+  await authService.createDefaultUser();
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
