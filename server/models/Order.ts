@@ -119,8 +119,7 @@ const ShippingAddressSchema = new Schema<IShippingAddress>({
 const OrderSchema = new Schema<IOrder>({
   orderNumber: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   user: {
     type: Schema.Types.ObjectId,
@@ -181,8 +180,8 @@ OrderSchema.pre('save', async function(next) {
 });
 
 // Indexes
+OrderSchema.index({ orderNumber: 1 }, { unique: true });
 OrderSchema.index({ user: 1, createdAt: -1 });
-OrderSchema.index({ orderNumber: 1 });
 OrderSchema.index({ status: 1 });
 
 export const Order = mongoose.model<IOrder>('Order', OrderSchema);
