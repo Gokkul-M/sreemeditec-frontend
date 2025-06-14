@@ -1,6 +1,7 @@
 import express from 'express';
 import { Product } from '../models/Product';
 import { authenticateToken, requireAdmin, AuthRequest } from '../middleware/auth';
+import { productService } from '../services/ProductService';
 
 const router = express.Router();
 
