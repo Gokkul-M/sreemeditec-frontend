@@ -27,13 +27,18 @@ app.use(helmet({
 
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-domain.com'] 
+    ? (process.env.ALLOWED_ORIGINS?.split(',') || ['https://your-domain.com'])
     : ['http://localhost:5000', 'http://localhost:3000'],
   credentials: true
 }));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false }));
+
+// Setup production middleware
+if (process.env.NODE_ENV === 'production') {
+  setupProductionMiddleware(app);
+}
 
 // Connect to MongoDB
 connectDB();

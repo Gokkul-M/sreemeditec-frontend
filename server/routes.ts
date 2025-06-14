@@ -5,6 +5,7 @@ import authRoutes from "./routes/auth";
 import productRoutes from "./routes/products";
 import orderRoutes from "./routes/orders";
 import quoteRoutes from "./routes/quotes";
+import adminRoutes from "./routes/admin";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
@@ -12,6 +13,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/products", productRoutes);
   app.use("/api/orders", orderRoutes);
   app.use("/api/quotes", quoteRoutes);
+  app.use("/api/admin", adminRoutes);
 
   // Health check endpoint
   app.get("/api/health", (req, res) => {
