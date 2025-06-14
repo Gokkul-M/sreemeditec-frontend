@@ -114,6 +114,11 @@
   @apply transition-transform duration-300 hover:scale-105;
 }
 
+/* Smooth transitions for theme changes */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
 /* Improved dark mode text visibility */
 .dark .text-gray-600,
 .dark .text-gray-700,
@@ -121,22 +126,80 @@
   @apply text-gray-300;
 }
 
-.dark .text-muted-foreground {
-  @apply text-gray-300;
-}
-
 /* Improved card visibility in dark mode */
 .dark .bg-white {
-  @apply bg-gray-800;
+  @apply bg-card;
+}
+
+.dark .bg-gray-50 {
+  @apply bg-muted;
+}
+
+.dark .bg-gray-100 {
+  @apply bg-muted;
 }
 
 /* Improved form field visibility in dark mode */
 .dark input,
-.dark textarea {
-  @apply bg-gray-800 border-gray-600 text-gray-100;
+.dark textarea,
+.dark select {
+  @apply bg-input border-border text-foreground placeholder:text-muted-foreground;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  @apply ring-ring border-ring;
 }
 
 /* Improved border visibility in dark mode */
 .dark .border {
-  @apply border-gray-700;
+  @apply border-border;
+}
+
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  @apply border-border;
+}
+
+/* Button improvements in dark mode */
+.dark .hover\:bg-gray-100:hover {
+  @apply bg-accent;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  @apply bg-accent;
+}
+
+/* Navigation improvements */
+.dark nav a:hover {
+  @apply text-primary;
+}
+
+/* Card hover effects in dark mode */
+.dark .card-hover:hover {
+  @apply bg-accent/50;
+}
+
+/* Table improvements in dark mode */
+.dark table {
+  @apply border-border;
+}
+
+.dark th {
+  @apply bg-muted text-muted-foreground;
+}
+
+.dark td {
+  @apply border-border;
+}
+
+/* Dropdown and popover improvements */
+.dark .bg-popover {
+  background-color: hsl(var(--popover));
+}
+
+/* Modal and dialog improvements */
+.dark .bg-background {
+  background-color: hsl(var(--background));
 }
