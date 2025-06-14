@@ -1,41 +1,14 @@
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
-import { Moon, ShoppingCart, Sun } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { AuthButtons, UserButton } from "../auth/AuthButtons";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useEffect, useState } from "react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const Header = () => {
   const { getTotalItems } = useCart();
   const isMobile = useIsMobile();
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  
-  // Check for user preference on component mount
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    
-    if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
-      setIsDarkMode(true);
-      document.documentElement.classList.add("dark");
-    } else {
-      setIsDarkMode(false);
-      document.documentElement.classList.remove("dark");
-    }
-  }, []);
-  
-  const toggleDarkMode = () => {
-    if (isDarkMode) {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-      setIsDarkMode(false);
-    } else {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-      setIsDarkMode(true);
-    }
-  };
   
   return (
     <header className="border-b">
@@ -53,14 +26,7 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleDarkMode}
-            aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-          >
-            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </Button>
+          <ThemeToggle />
           
           <Link to="/cart">
             <Button variant="ghost" size="icon" className="relative">
